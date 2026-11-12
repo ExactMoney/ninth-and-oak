@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Thank You | Ninth & Oak" description="Thank you for contacting Ninth & Oak.">
+  <main class="thanks">
+    <a href="/" aria-label="Ninth and Oak home"><img src="/images/ninth-and-oak-logo.jpg" alt="Ninth & Oak" /></a>
+    <p class="eyebrow">Message received</p>
+    <h1>Thank you for reaching out.</h1>
+    <p>We’ll review your note and be in touch soon.</p>
+    <a class="button" href="/">Return home</a>
+  </main>
+</Layout>
+<style>
+  :global(*){box-sizing:border-box} :global(body){margin:0;background:#f4efe6;color:#202326;font:18px/1.6 Arial,sans-serif}.thanks{min-height:100vh;display:grid;place-content:center;text-align:center;padding:2rem}.thanks img{width:min(400px,85vw);mix-blend-mode:multiply}.eyebrow{color:#a85f36;text-transform:uppercase;letter-spacing:.18em;font-size:.75rem;font-weight:700}h1{font:clamp(2.5rem,8vw,5rem)/1 Georgia,serif;max-width:800px;margin:.5rem auto 1rem}.button{justify-self:center;background:#202326;color:white;text-decoration:none;padding:.9rem 1.4rem;margin-top:1rem}
+</style>

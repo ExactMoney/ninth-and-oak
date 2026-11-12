@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const services = [
+  { n: '01', title: 'AI Consulting', text: 'Practical AI strategy, use-case discovery, and implementation guidance grounded in the way your business actually works.' },
+  { n: '02', title: 'Business Automation', text: 'Thoughtful systems that reduce repetitive work, connect your tools, and give your team time back.' },
+  { n: '03', title: 'Website Development', text: 'Fast, accessible digital experiences that clarify your value and turn attention into action.' },
+  { n: '04', title: 'Digital Marketing', text: 'Focused campaigns and content systems built to reach the right audience and earn durable growth.' },
+  { n: '05', title: 'Strategic Consulting', text: 'Clear-eyed guidance for pivotal decisions, operational improvements, and the next stage of your business.' },
+];
+
+const reasons = [
+  ['Business first', 'Technology is only useful when it advances a real objective. Every recommendation begins with the outcome.'],
+  ['Built to last', 'We favor clear architecture, documented decisions, and systems your team can confidently own.'],
+  ['One connected view', 'Strategy, brand, operations, and technology work together—so our thinking does, too.'],
+];
+---
+<Layout title="Ninth & Oak | Business, AI & Digital Consulting" description="Ninth & Oak helps established businesses move forward with AI consulting, automation, web development, digital marketing, and strategic guidance.">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" data-header>
+    <a class="brand" href="#top" aria-label="Ninth and Oak home">
+      <img src="/images/ninth-and-oak-logo.jpg" alt="Ninth & Oak" width="1300" height="426" />
+    </a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="nav"><span></span><span></span><span class="sr-only">Menu</span></button>
+    <nav id="nav" aria-label="Primary navigation">
+      <a href="#services">Services</a><a href="#why">Why us</a><a href="#approach">Approach</a><a href="#contact">Contact</a>
+    </nav>
+    <a class="header-cta" href="#contact">Schedule a consultation <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="rings" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> Independent business consultancy</p>
+        <h1>Rooted in Experience.<br /><em>Built for What’s Next.</em></h1>
+        <p class="lede">We help ambitious businesses turn complex challenges into clear, practical progress—across strategy, technology, and growth.</p>
+        <div class="hero-actions"><a class="button copper" href="#contact">Schedule a Consultation <span>↗</span></a><a class="text-link" href="#services">Explore our services <span>↓</span></a></div>
+      </div>
+      <div class="hero-note"><span class="line"></span><p>Deep roots.<br />Forward thinking.</p></div>
+      <div class="scroll" aria-hidden="true">Scroll to explore <span>↓</span></div>
+    </section>
+
+    <section class="intro band">
+      <p class="section-tag">What we do</p>
+      <p class="statement reveal">The strongest businesses know where they come from—and where they’re going. <em>We help bridge the two.</em></p>
+    </section>
+
+    <section class="services wrap" id="services">
+      <div class="section-heading reveal"><div><p class="eyebrow"><span></span> Our expertise</p><h2>Clarity at every<br /><em>turning point.</em></h2></div><p>From the first strategic question to the final implementation, we bring the perspective and practical capability to move good businesses forward.</p></div>
+      <div class="service-list">
+        {services.map((service) => <article class="service reveal"><span>{service.n}</span><h3>{service.title}</h3><p>{service.text}</p><i aria-hidden="true">↗</i></article>)}
+      </div>
+    </section>
+
+    <section class="why" id="why">
+      <div class="oak-panel" aria-hidden="true"><div class="trunk"></div><div class="canopy one"></div><div class="canopy two"></div><div class="canopy three"></div><p>9<span>+</span></p></div>
+      <div class="why-copy reveal">
+        <p class="eyebrow light"><span></span> Why Ninth & Oak</p>
+        <h2>Steady judgment.<br /><em>Modern momentum.</em></h2>
+        <p class="why-lede">You don’t need more noise. You need a partner who can see the whole picture, ask the right questions, and help you make the next move with confidence.</p>
+        <div class="reasons">{reasons.map(([title, text], i) => <div><b>0{i + 1}</b><h3>{title}</h3><p>{text}</p></div>)}</div>
+      </div>
+    </section>
+
+    <section class="approach wrap" id="approach">
+      <div class="approach-head reveal"><p class="eyebrow"><span></span> Our approach</p><h2>Measured by progress,<br /><em>not presentations.</em></h2></div>
+      <ol>
+        <li class="reveal"><span>01</span><div><h3>Listen deeply</h3><p>We begin with your goals, your constraints, and the context only you know.</p></div></li>
+        <li class="reveal"><span>02</span><div><h3>Find the signal</h3><p>We turn complexity into a focused plan with priorities, owners, and practical next steps.</p></div></li>
+        <li class="reveal"><span>03</span><div><h3>Build with purpose</h3><p>We implement thoughtfully, communicate clearly, and make sure the work earns its place.</p></div></li>
+        <li class="reveal"><span>04</span><div><h3>Strengthen what works</h3><p>We measure, learn, and refine—creating capability that compounds over time.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact-intro reveal"><p class="eyebrow light"><span></span> Start a conversation</p><h2>What’s the next<br /><em>chapter?</em></h2><p>Tell us where you’re headed—or what’s standing in the way. We’ll start with a thoughtful conversation about what’s possible.</p><a href="mailto:hello@ninthandoak.com">hello@ninthandoak.com <span>↗</span></a></div>
+      <form class="lead-form" name="consultation" method="POST" action="/thank-you" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="consultation" /><p class="hidden"><label>Don’t fill this out: <input name="bot-field" /></label></p>
+        <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" autocomplete="name" required placeholder="Your name" /></div>
+        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" /></div>
+        <div class="field"><label for="company">Company <span>Optional</span></label><input id="company" name="company" type="text" autocomplete="organization" placeholder="Company name" /></div>
+        <div class="field"><label for="service">What can we help with?</label><select id="service" name="service" required><option value="" disabled selected>Select a service</option>{services.map((s) => <option value={s.title}>{s.title}</option>)}<option value="Not sure yet">Not sure yet</option></select></div>
+        <div class="field full"><label for="message">Tell us a little about your goals</label><textarea id="message" name="message" rows="4" required placeholder="What would you like to accomplish?"></textarea></div>
+        <button class="button copper" type="submit">Send inquiry <span>↗</span></button><p class="privacy">By submitting, you agree to be contacted about your inquiry. No spam—ever.</p>
+      </form>
+    </section>
+  </main>
+
+  <footer><a class="footer-brand" href="#top"><img src="/images/ninth-and-oak-logo.jpg" alt="Ninth & Oak" /></a><p>Thoughtful strategy. Practical progress.</p><div><a href="#services">Services</a><a href="#why">Why us</a><a href="#approach">Approach</a><a href="#contact">Contact</a></div><small>© {new Date().getFullYear()} Ninth & Oak. All rights reserved.</small><a class="top" href="#top">Back to top ↑</a></footer>
+
+  <script>
+    const menu = document.querySelector('.menu');
+    const nav = document.querySelector('#nav');
+    menu?.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') === 'true'; menu.setAttribute('aria-expanded', String(!open)); nav?.classList.toggle('open', !open); });
+    nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { menu?.setAttribute('aria-expanded', 'false'); nav.classList.remove('open'); }));
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible')), { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</Layout>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Libre+Caslon+Display&display=swap');
+  :root{--ink:#202326;--copper:#b76e43;--copper-dark:#9a5733;--cream:#f4efe6;--paper:#fbf8f2;--sage:#74796d;--line:rgba(32,35,38,.16);--serif:'Libre Caslon Display',Georgia,serif;--sans:'DM Sans',Arial,sans-serif}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}a{color:inherit}.skip{position:fixed;z-index:100;top:8px;left:8px;background:white;padding:.6rem 1rem;transform:translateY(-140%)}.skip:focus{transform:none}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .site-header{height:88px;display:flex;align-items:center;padding:0 clamp(1.25rem,5vw,5rem);position:absolute;inset:0 0 auto;z-index:10;border-bottom:1px solid rgba(255,255,255,.18);color:white}.brand{background:#f8f5ef;height:88px;width:250px;margin-right:auto;display:grid;place-items:center;padding:1rem}.brand img{width:100%;height:auto;mix-blend-mode:multiply}.site-header nav{display:flex;gap:clamp(1.2rem,2.5vw,2.6rem);margin:0 3rem}.site-header nav a,.header-cta{text-decoration:none;font-size:.8rem;letter-spacing:.06em}.site-header nav a{opacity:.82}.site-header nav a:hover{opacity:1}.header-cta{border:1px solid rgba(255,255,255,.6);padding:.7rem 1rem}.header-cta span,.button span{margin-left:.8rem}.menu{display:none;background:none;border:0;color:white;width:40px;height:40px}.menu span:not(.sr-only){display:block;height:1px;background:currentColor;margin:7px}
+  .hero{min-height:760px;height:100vh;max-height:980px;background:var(--ink);color:white;position:relative;display:flex;align-items:center;overflow:hidden;padding:8rem clamp(1.25rem,8vw,9rem) 5rem}.hero:after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 35%,rgba(183,110,67,.16),transparent 34%),linear-gradient(90deg,rgba(0,0,0,.18),transparent 50%);pointer-events:none}.hero-copy{position:relative;z-index:2;max-width:920px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.18em;font-weight:600;color:var(--copper-dark);display:flex;align-items:center;gap:.7rem;margin:0 0 2rem}.eyebrow span{display:inline-block;width:30px;height:1px;background:currentColor}.eyebrow.light{color:#d9986f}.hero h1,.section-heading h2,.why h2,.approach h2,.contact h2{font-family:var(--serif);font-weight:400;letter-spacing:-.035em;margin:0;line-height:.98}.hero h1{font-size:clamp(3.4rem,7vw,7.6rem)}em{color:var(--copper);font-style:italic}.lede{font-size:clamp(1.05rem,1.5vw,1.3rem);line-height:1.65;max-width:660px;color:rgba(255,255,255,.73);margin:2.2rem 0}.hero-actions{display:flex;gap:2rem;align-items:center}.button{display:inline-flex;align-items:center;justify-content:center;border:0;text-decoration:none;padding:1rem 1.35rem;font:600 .78rem var(--sans);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}.copper{background:var(--copper);color:white}.copper:hover{background:var(--copper-dark)}.text-link{font-size:.82rem;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.35);padding:.7rem 0}.text-link span{margin-left:.7rem}.rings{position:absolute;width:min(62vw,820px);aspect-ratio:1;right:-12%;top:4%;opacity:.2}.rings i{position:absolute;border:1px solid #d9986f;border-radius:50%;inset:0}.rings i:nth-child(2){inset:13%}.rings i:nth-child(3){inset:27%}.hero-note{position:absolute;right:5vw;bottom:15%;z-index:2;color:rgba(255,255,255,.6);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}.hero-note .line{display:block;width:1px;height:70px;background:var(--copper);margin:0 0 1rem}.scroll{position:absolute;bottom:2rem;left:50%;z-index:2;text-transform:uppercase;letter-spacing:.15em;font-size:.6rem;opacity:.55}.scroll span{margin-left:1rem}
+  .band{padding:clamp(5rem,9vw,9rem) clamp(1.25rem,8vw,9rem);display:grid;grid-template-columns:1fr 3fr;gap:3rem;background:var(--cream)}.section-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.18em;color:var(--copper-dark);margin:1rem 0}.statement{font:clamp(2rem,4vw,4.25rem)/1.22 var(--serif);margin:0;max-width:1000px}.wrap{padding:clamp(5rem,9vw,9rem) clamp(1.25rem,8vw,9rem)}.section-heading{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:end;margin-bottom:5rem}.section-heading h2,.why h2,.approach h2,.contact h2{font-size:clamp(2.9rem,5vw,5.5rem)}.section-heading>p{color:#62645f;max-width:480px;margin:0 0 .5rem}.service{display:grid;grid-template-columns:70px minmax(220px,1fr) 1.3fr 30px;gap:2rem;align-items:center;border-top:1px solid var(--line);padding:2rem 0}.service:last-child{border-bottom:1px solid var(--line)}.service>span,.service>i{color:var(--copper);font-size:.75rem}.service h3{font:400 clamp(1.5rem,2.3vw,2.5rem) var(--serif);margin:0}.service p{color:#686a65;margin:0;max-width:540px}.service i{font-style:normal;font-size:1rem}
+  .why{display:grid;grid-template-columns:minmax(330px,42%) 1fr;background:var(--ink);color:white}.oak-panel{min-height:760px;position:relative;overflow:hidden;background:#292d2d;background-image:repeating-radial-gradient(ellipse at 50% 100%,transparent 0 30px,rgba(183,110,67,.1) 31px 32px)}.oak-panel .trunk{position:absolute;width:28px;height:48%;background:linear-gradient(90deg,#7c482e,#b76e43,#75402a);left:48%;bottom:0;clip-path:polygon(35% 0,65% 0,100% 100%,0 100%)}.canopy{position:absolute;border:1px solid rgba(217,152,111,.5);border-radius:50%}.canopy.one{width:55%;aspect-ratio:1;top:18%;left:23%}.canopy.two{width:38%;aspect-ratio:1;top:10%;left:16%}.canopy.three{width:40%;aspect-ratio:1;top:13%;right:12%}.oak-panel>p{font:10rem/1 var(--serif);position:absolute;left:2rem;bottom:0;margin:0;color:rgba(255,255,255,.05)}.oak-panel>p span{color:var(--copper)}.why-copy{padding:clamp(5rem,8vw,8rem)}.why-lede{color:rgba(255,255,255,.67);font-size:1.08rem;max-width:620px;margin:2rem 0 3rem}.reasons>div{display:grid;grid-template-columns:45px 1fr 1.7fr;gap:1.4rem;border-top:1px solid rgba(255,255,255,.14);padding:1.6rem 0}.reasons b{color:var(--copper);font-size:.7rem}.reasons h3{font:1.4rem var(--serif);margin:0}.reasons p{margin:0;color:rgba(255,255,255,.57);font-size:.88rem}
+  .approach{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(4rem,8vw,9rem);background:var(--cream)}.approach-head{position:sticky;top:3rem;align-self:start}.approach ol{list-style:none;padding:0;margin:0}.approach li{display:grid;grid-template-columns:55px 1fr;gap:1.5rem;padding:2rem 0;border-top:1px solid var(--line)}.approach li:last-child{border-bottom:1px solid var(--line)}.approach li>span{color:var(--copper);font-size:.7rem}.approach h3{font:2rem var(--serif);margin:-.3rem 0 .5rem}.approach li p{color:#666862;margin:0}
+  .contact{background:#303331;color:white;padding:clamp(5rem,9vw,9rem) clamp(1.25rem,8vw,9rem);display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(4rem,8vw,9rem)}.contact-intro>p:not(.eyebrow){max-width:520px;color:rgba(255,255,255,.65);margin:2rem 0}.contact-intro>a{display:inline-flex;text-decoration:none;color:#e1a27b;border-bottom:1px solid rgba(225,162,123,.4);padding-bottom:.3rem}.contact-intro>a span{margin-left:1rem}.lead-form{display:grid;grid-template-columns:1fr 1fr;gap:1.7rem 1.4rem;background:var(--paper);color:var(--ink);padding:clamp(1.5rem,4vw,3.5rem)}.field{display:flex;flex-direction:column;gap:.45rem}.field.full{grid-column:1/-1}.field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600}.field label span{color:#888;font-weight:400}.field input,.field select,.field textarea{width:100%;border:0;border-bottom:1px solid #bbb8b1;background:transparent;padding:.75rem 0;border-radius:0;color:var(--ink);font:1rem var(--sans)}.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--copper);outline-offset:3px}.lead-form button{justify-self:start}.privacy{font-size:.68rem;color:#858680;margin:auto 0}.hidden{display:none}
+  footer{background:#1a1c1e;color:white;padding:3rem clamp(1.25rem,5vw,5rem);display:grid;grid-template-columns:240px 1fr auto;gap:2rem;align-items:center}footer .footer-brand{background:var(--paper);padding:.7rem 1rem}footer img{width:100%;display:block;mix-blend-mode:multiply}footer>p{color:rgba(255,255,255,.45);font:1rem var(--serif)}footer>div{display:flex;gap:1.5rem}footer a{text-decoration:none;font-size:.75rem}footer small{color:rgba(255,255,255,.35);font-size:.65rem;grid-column:1/3}.top{justify-self:end;color:rgba(255,255,255,.55)}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}.reveal.visible{opacity:1;transform:none}.hero .reveal{animation:enter .9s .15s forwards}@keyframes enter{to{opacity:1;transform:none}}
+  @media(max-width:900px){.site-header{height:76px;padding:0 1.25rem}.brand{height:76px;width:190px;margin-left:-1.25rem}.menu{display:block;margin-left:auto}.site-header nav{position:absolute;top:76px;left:0;right:0;margin:0;background:var(--ink);display:none;flex-direction:column;padding:2rem}.site-header nav.open{display:flex}.header-cta{display:none}.hero{padding-top:8rem}.hero-note,.scroll{display:none}.band,.section-heading,.why,.approach,.contact{grid-template-columns:1fr}.band{gap:1rem}.service{grid-template-columns:40px 1fr 30px}.service p{grid-column:2/4}.oak-panel{min-height:450px}.approach-head{position:static}.lead-form{grid-template-columns:1fr}.field.full{grid-column:auto}footer{grid-template-columns:1fr}footer>*{justify-self:start!important}footer small{grid-column:auto}}
+  @media(max-width:560px){.hero{min-height:720px;height:100svh}.hero h1{font-size:3.15rem}.hero-actions{align-items:flex-start;flex-direction:column;gap:.7rem}.rings{width:110vw;right:-55%;top:25%}.section-heading{gap:2rem;margin-bottom:3rem}.service{gap:1rem}.why-copy{padding:4rem 1.25rem}.reasons>div{grid-template-columns:35px 1fr}.reasons p{grid-column:2}.contact{gap:3rem}.lead-form{padding:1.5rem}.privacy{margin-top:-.7rem}footer>div{flex-wrap:wrap}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.hero .reveal{animation:none}}
+</style>
