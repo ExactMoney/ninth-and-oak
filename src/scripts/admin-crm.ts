@@ -6,7 +6,7 @@ const db = url && key ? createClient(url, key) : null;
 const $ = (selector: string) => document.querySelector(selector) as HTMLElement | null;
 const $$ = (selector: string) => [...document.querySelectorAll(selector)] as HTMLElement[];
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-const state: Record<string, any[]> = { contacts: [], deals: [], tasks: [], activities: [], emailThreads: [], emailMessages: [] };
+const state: Record<string, any[]> = { contacts: [], deals: [], tasks: [], activities: [], emailThreads: [], emailMessages: [], proposals: [] };
 let activeContactId = '';
 const esc = (value: unknown = '') => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c));
 const nice = (value = '') => value.replaceAll('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -35,13 +35,14 @@ async function reloadAll() {
     db!.from('activities').select('*').order('occurred_at', { ascending: false }),
     db!.from('email_threads').select('*,contacts(first_name,last_name,company,email)').order('last_message_at', { ascending: false }),
     db!.from('email_messages').select('*').order('sent_at', { ascending: false }),
+    db!.from('proposals').select('*,contacts(first_name,last_name,company,email)').order('created_at', { ascending: false }),
   ]);
   const error = results.find(result => result.error)?.error;
   if (error) {
     ($('#crm-app') as HTMLElement).hidden = true; ($('#login-screen') as HTMLElement).hidden = false;
     $('#login-message')!.textContent = 'Your account is signed in but has not been granted CRM access.'; return;
   }
-  ['contacts','deals','tasks','activities','emailThreads','emailMessages'].forEach((name, index) => state[name] = results[index].data || []);
+  ['contacts','deals','tasks','activities','emailThreads','emailMessages','proposals'].forEach((name, index) => state[name] = results[index].data || []);
   render();
 }
 
@@ -52,7 +53,7 @@ function render() {
   $('#relationship-count')!.textContent = String(state.contacts.length);
   $('#contact-count')!.textContent = String(state.contacts.length);
   $('#task-count')!.textContent = String(state.tasks.filter(t => !['done','cancelled'].includes(t.status)).length);
-  renderContacts(); renderPipeline(); renderTasks(); renderEmail(); fillContactSelects();
+  renderContacts(); renderPipeline(); renderTasks(); renderEmail(); renderProposals(); fillContactSelects();
   renderNotifications();
 }
 
@@ -110,12 +111,20 @@ function renderEmail() {
 }
 
 function fillContactSelects() {
-  ['#task-contact','#deal-contact'].forEach(id => {
+  ['#task-contact','#deal-contact','#proposal-contact'].forEach(id => {
     const select = document.querySelector(id) as HTMLSelectElement | null; if (!select) return;
     const current = select.value;
     select.innerHTML = '<option value="">No contact</option>' + state.contacts.map(c => `<option value="${c.id}">${esc(`${c.first_name} ${c.last_name}`.trim())}${c.company ? ` — ${esc(c.company)}` : ''}</option>`).join('');
     select.value = current;
   });
+}
+
+function renderProposals() {
+  const list = $('#proposals-list'); if (!list) return;
+  list.innerHTML = state.proposals.length ? state.proposals.map(p => {
+    const name = `${p.contacts?.first_name || ''} ${p.contacts?.last_name || ''}`.trim() || p.contacts?.email || 'Client';
+    return `<article class="proposal-row"><div><p class="kicker">${esc(name)}</p><h3>${esc(p.title)}</h3><small>${date(p.created_at)} · ${nice(p.status)}</small></div><strong>${money.format(Number(p.amount_cents || 0) / 100)}</strong><div class="object-actions">${p.payment_url ? `<a class="button-link" href="${esc(p.payment_url)}" target="_blank" rel="noreferrer">Open link</a>` : ''}<button class="danger" data-delete-proposal="${p.id}">Delete</button></div></article>`;
+  }).join('') : '<p class="empty">Create a proposal and send a secure Stripe payment link.</p>';
 }
 
 function openForm(kind: 'contact'|'task'|'deal', record?: any) {
@@ -165,7 +174,7 @@ async function archive(table: string, id: string, label: string) {
 function showView(view: string) {
   $$('.view').forEach(v => v.classList.toggle('active', v.dataset.panel === view));
   $$('.nav-link').forEach(v => v.classList.toggle('active', v.dataset.view === view));
-  $('#view-title')!.textContent = ({overview:'Business overview',contacts:'Relationships',pipeline:'Opportunity pipeline',tasks:'Tasks & follow-up',email:'Email center'} as any)[view];
+  $('#view-title')!.textContent = ({overview:'Business overview',contacts:'Relationships',pipeline:'Opportunity pipeline',proposals:'Proposals & payment',tasks:'Tasks & follow-up',email:'Email center'} as any)[view];
   document.body.classList.remove('nav-open');
 }
 
@@ -176,6 +185,7 @@ $$('[data-jump]').forEach(button => button.addEventListener('click', () => showV
 $('#mobile-nav')!.addEventListener('click', () => document.body.classList.toggle('nav-open'));
 $('#contact-search')!.addEventListener('input', renderContacts); $('#contact-filter')!.addEventListener('change', renderContacts);
 $('#new-contact')!.addEventListener('click', () => openForm('contact')); $('#new-task')!.addEventListener('click', () => openForm('task')); $('#new-deal')!.addEventListener('click', () => openForm('deal'));
+$('#new-proposal')!.addEventListener('click', () => { fillContactSelects(); form('#proposal-form').reset(); $('#proposal-message')!.textContent = ''; dialog('#proposal-dialog').showModal(); });
 form('#contact-form').addEventListener('submit', event => save('contact', event)); form('#task-form').addEventListener('submit', event => save('task', event)); form('#deal-form').addEventListener('submit', event => save('deal', event));
 $('#close-detail')!.addEventListener('click', () => dialog('#contact-detail').close());
 $('#detail-edit')!.addEventListener('click', () => { const contact = state.contacts.find(c => c.id === activeContactId); dialog('#contact-detail').close(); openForm('contact', contact); });
@@ -186,6 +196,7 @@ form('#activity-form').addEventListener('submit', async event => { event.prevent
 $('#email-contact')!.addEventListener('change', event => { const select = event.target as HTMLSelectElement; (document.querySelector('#email-to') as HTMLInputElement).value = select.selectedOptions[0]?.dataset.email || ''; });
 $('#refresh-email')!.addEventListener('click', reloadAll);
 form('#email-form').addEventListener('submit', async event => { event.preventDefault(); const message = $('#email-message')!; message.textContent = 'Sending…'; const { data: { session } } = await db!.auth.getSession(); if (!session) { message.textContent = 'Session expired. Sign in again.'; return; } const payload = Object.fromEntries(new FormData(event.currentTarget as HTMLFormElement)); const response = await fetch('/api/crm/email/send', { method:'POST', headers:{'content-type':'application/json','authorization':`Bearer ${session.access_token}`}, body:JSON.stringify(payload) }); const result = await response.json(); if (!response.ok) { message.textContent = result.error || 'Message could not be sent.'; return; } message.textContent = 'Message sent and saved to this contact.'; form('#email-form').reset(); await reloadAll(); });
+form('#proposal-form').addEventListener('submit', async event => { event.preventDefault(); const message = $('#proposal-message')!; message.textContent = 'Creating secure Stripe link…'; const { data: { session } } = await db!.auth.getSession(); if (!session) { message.textContent = 'Session expired. Sign in again.'; return; } const payload = Object.fromEntries(new FormData(event.currentTarget as HTMLFormElement)); const response = await fetch('/api/crm/proposals/create', { method:'POST', headers:{'content-type':'application/json','authorization':`Bearer ${session.access_token}`}, body:JSON.stringify(payload) }); const result = await response.json(); if (!response.ok) { message.textContent = result.error || 'Proposal could not be created.'; return; } dialog('#proposal-dialog').close(); await reloadAll(); showView('proposals'); });
 
 document.addEventListener('click', async event => {
   const target = (event.target as HTMLElement).closest('button,[data-open-contact]') as HTMLElement | null; if (!target) return;
@@ -194,6 +205,7 @@ document.addEventListener('click', async event => {
   if (target.dataset.editDeal) return openForm('deal', state.deals.find(d => d.id === target.dataset.editDeal));
   if (target.dataset.deleteTask) return archive('tasks', target.dataset.deleteTask, 'this task');
   if (target.dataset.deleteDeal) return archive('deals', target.dataset.deleteDeal, 'this opportunity');
+  if (target.dataset.deleteProposal) return archive('proposals', target.dataset.deleteProposal, 'this proposal');
   if (target.dataset.deleteActivity) { await archive('activities', target.dataset.deleteActivity, 'this activity'); return openContact(activeContactId); }
   if (target.dataset.editActivity) { const item = state.activities.find(a => a.id === target.dataset.editActivity); const summary = prompt('Update summary', item?.summary); if (!summary) return; const details = prompt('Update details', item?.details || '') ?? item?.details; await db!.from('activities').update({ summary, details }).eq('id', item.id); await reloadAll(); return openContact(activeContactId); }
   if (target.dataset.deleteThread) return archive('email_threads', target.dataset.deleteThread, 'this conversation');
