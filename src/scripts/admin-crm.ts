@@ -53,6 +53,19 @@ function render() {
   $('#contact-count')!.textContent = String(state.contacts.length);
   $('#task-count')!.textContent = String(state.tasks.filter(t => !['done','cancelled'].includes(t.status)).length);
   renderContacts(); renderPipeline(); renderTasks(); renderEmail(); fillContactSelects();
+  renderNotifications();
+}
+
+function renderNotifications() {
+  const unread = state.emailMessages.filter(message => message.direction === 'inbound' && !message.read_at);
+  $('#email-count')!.textContent = unread.length ? String(unread.length) : '0';
+  const panel = $('#inbox-alerts') as HTMLElement;
+  panel.hidden = unread.length === 0;
+  $('#inbox-alert-list')!.innerHTML = unread.slice(0, 4).map(message => {
+    const contact = state.contacts.find(item => item.id === message.contact_id);
+    const name = contact ? `${contact.first_name} ${contact.last_name}`.trim() : message.from_address;
+    return `<article class="inbox-alert"><div><strong>${esc(name)}</strong><p>${esc(message.subject)} · ${date(message.sent_at)}</p></div><button data-review-email="${message.id}" data-thread="${message.thread_id}">Review</button></article>`;
+  }).join('');
 }
 
 function renderContacts() {
@@ -91,7 +104,8 @@ function renderEmail() {
     const latest = state.emailMessages.find(m => m.thread_id === thread.id);
     const name = `${thread.contacts?.first_name || ''} ${thread.contacts?.last_name || ''}`.trim() || thread.contacts?.email || 'Contact';
     const direction = latest?.direction === 'inbound' ? 'Received' : 'Sent';
-    return `<article class="email-thread"><div><strong>${esc(name)}</strong><small>${esc(thread.contacts?.company || '')}</small></div><div><b>${esc(thread.subject)}</b><p><span class="direction ${latest?.direction || ''}">${direction}</span> ${esc((latest?.text_body || '').slice(0, 110))}</p></div><time>${date(thread.last_message_at)}</time><div class="object-actions"><button data-reply-thread="${thread.id}">Reply</button><button class="danger" data-delete-thread="${thread.id}">Delete</button></div></article>`;
+    const unread = state.emailMessages.some(message => message.thread_id === thread.id && message.direction === 'inbound' && !message.read_at);
+    return `<article class="email-thread ${unread ? 'unread' : ''}"><div><strong>${esc(name)}</strong><small>${esc(thread.contacts?.company || '')}</small></div><div><b>${esc(thread.subject)}</b><p><span class="direction ${latest?.direction || ''}">${direction}</span> ${esc((latest?.text_body || '').slice(0, 110))}</p></div><time>${date(thread.last_message_at)}</time><div class="object-actions">${unread ? `<button data-review-thread="${thread.id}">Mark reviewed</button>` : ''}<button data-reply-thread="${thread.id}">Reply</button><button class="danger" data-delete-thread="${thread.id}">Delete</button></div></article>`;
   }).join('') : '<p class="empty">Messages and replies will appear here.</p>';
 }
 
@@ -183,6 +197,8 @@ document.addEventListener('click', async event => {
   if (target.dataset.deleteActivity) { await archive('activities', target.dataset.deleteActivity, 'this activity'); return openContact(activeContactId); }
   if (target.dataset.editActivity) { const item = state.activities.find(a => a.id === target.dataset.editActivity); const summary = prompt('Update summary', item?.summary); if (!summary) return; const details = prompt('Update details', item?.details || '') ?? item?.details; await db!.from('activities').update({ summary, details }).eq('id', item.id); await reloadAll(); return openContact(activeContactId); }
   if (target.dataset.deleteThread) return archive('email_threads', target.dataset.deleteThread, 'this conversation');
+  if (target.dataset.reviewEmail) { await db!.from('email_messages').update({ read_at: new Date().toISOString() }).eq('id', target.dataset.reviewEmail); showView('email'); return reloadAll(); }
+  if (target.dataset.reviewThread) { await db!.from('email_messages').update({ read_at: new Date().toISOString() }).eq('thread_id', target.dataset.reviewThread).eq('direction', 'inbound').is('read_at', null); return reloadAll(); }
   if (target.dataset.replyThread) { const thread = state.emailThreads.find(t => t.id === target.dataset.replyThread); const contact = state.contacts.find(c => c.id === thread?.contact_id); const emailForm = form('#email-form'); (emailForm.elements.namedItem('threadId') as HTMLInputElement).value = thread.id; (emailForm.elements.namedItem('contactId') as HTMLSelectElement).value = contact?.id || ''; (emailForm.elements.namedItem('to') as HTMLInputElement).value = contact?.email || ''; (emailForm.elements.namedItem('subject') as HTMLInputElement).value = /^re:/i.test(thread.subject) ? thread.subject : `Re: ${thread.subject}`; (emailForm.elements.namedItem('text') as HTMLTextAreaElement).focus(); }
 });
 
