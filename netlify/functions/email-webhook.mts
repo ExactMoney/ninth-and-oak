@@ -37,14 +37,23 @@ export default async (request: Request) => {
       const from = received.data.from || 'A customer';
       const subject = received.data.subject || '(No subject)';
       const preview = (received.data.text || '').slice(0, 700);
-      const alert = await resend.emails.send({
-        from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>',
-        to: [process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'],
-        subject: `New CRM reply: ${subject}`,
-        text: `New customer reply from ${from}\n\nSubject: ${subject}\n\n${preview}\n\nOpen CRM: https://ninthandoak.com/admin`,
-        html: notificationEmail('New customer reply', `From: ${from}\nSubject: ${subject}\n\n${preview}`),
-      });
-      if (alert.error) console.error('CRM notification email failed', alert.error);
+      // Do not notify on our own outbound alerts. Because the root domain also
+      // receives mail, alerting on these messages creates an infinite loop.
+      const fromAddress = from.match(/<([^>]+)>/)?.[1] || from;
+      const isInternal = fromAddress.toLowerCase().endsWith('@ninthandoak.com');
+      const isAlert = subject.toLowerCase().startsWith('new crm reply:');
+      if (!isInternal && !isAlert) {
+        const alert = await resend.emails.send({
+          from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>',
+          to: [process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'],
+          subject: `New CRM reply: ${subject}`,
+          text: `New customer reply from ${from}\n\nSubject: ${subject}\n\n${preview}\n\nOpen CRM: https://ninthandoak.com/admin`,
+          html: notificationEmail('New customer reply', `From: ${from}\nSubject: ${subject}\n\n${preview}`),
+        });
+        if (alert.error) console.error('CRM notification email failed', alert.error);
+      } else {
+        console.warn('Skipping CRM alert for internal/alert message', { from, subject });
+      }
     } else if (tracked.has(event.type) && 'email_id' in event.data) {
       const { error } = await supabase.rpc('update_email_delivery', {
         p_secret: integrationSecret(), p_provider_message_id: event.data.email_id,
