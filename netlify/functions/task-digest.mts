@@ -29,4 +29,4 @@ export default async (request: Request) => {
   }
 };
 
-export const config: Config = { path: '/api/crm/task-digest', schedule: '0 13 * * *' };
+export const config: Config = { schedule: '0 13 * * *' };
