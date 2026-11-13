@@ -14,6 +14,15 @@ const date = (value?: string) => value ? new Date(value).toLocaleDateString() : 
 const form = (id: string) => document.querySelector(id) as HTMLFormElement;
 const dialog = (id: string) => document.querySelector(id) as HTMLDialogElement;
 
+// Keep modal dismissal reliable across browsers. Native `method="dialog"`
+// handling varies on mobile, so close every explicit X/Cancel control ourselves.
+$$('dialog .dialog-head > button[aria-label="Close"], dialog .dialog-actions button[value="cancel"]').forEach(button => {
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    (button.closest('dialog') as HTMLDialogElement | null)?.close('cancel');
+  });
+});
+
 async function boot() {
   if (!db) { $('#login-message')!.textContent = 'CRM environment is not configured.'; return; }
   const { data } = await db.auth.getSession();
