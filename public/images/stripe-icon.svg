@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#f4efe6"/>
   <text x="52" y="386" fill="#202326" font-family="Georgia, 'Times New Roman', serif" font-size="360" font-weight="400">9</text>
-  <g transform="translate(258 150) scale(3.8)">
+  <g transform="translate(220 150) scale(3.8)">
     <path d="M8 54C13 35 16 17 38 4c4 24-4 43-30 50Z" fill="#b76e43"/>
     <path d="M6 62c7-19 17-32 29-47M15 42l-1-12m8 4 11-6M22 27l1-11" fill="none" stroke="#f4efe6" stroke-width="1.35" stroke-linecap="round"/>
   </g>
