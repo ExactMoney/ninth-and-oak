@@ -1,6 +1,7 @@
 import type { Config } from '@netlify/functions';
 import { Resend } from 'resend';
 import { integrationSecret, json, publicSupabase } from '../lib/crm';
+import { notificationEmail } from '../lib/notification-email';
 
 const tracked = new Set(['email.sent', 'email.delivered', 'email.delivery_delayed', 'email.complained', 'email.bounced', 'email.failed', 'email.suppressed']);
 
@@ -33,6 +34,17 @@ export default async (request: Request) => {
         p_received_at: received.data.created_at,
       });
       if (error) throw error;
+      const from = received.data.from || 'A customer';
+      const subject = received.data.subject || '(No subject)';
+      const preview = (received.data.text || '').slice(0, 700);
+      const alert = await resend.emails.send({
+        from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <hello@mail.ninthandoak.com>',
+        to: [process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'],
+        subject: `New CRM reply: ${subject}`,
+        text: `New customer reply from ${from}\n\nSubject: ${subject}\n\n${preview}\n\nOpen CRM: https://ninthandoak.com/admin`,
+        html: notificationEmail('New customer reply', `From: ${from}\nSubject: ${subject}\n\n${preview}`),
+      });
+      if (alert.error) console.error('CRM notification email failed', alert.error);
     } else if (tracked.has(event.type) && 'email_id' in event.data) {
       const { error } = await supabase.rpc('update_email_delivery', {
         p_secret: integrationSecret(), p_provider_message_id: event.data.email_id,
