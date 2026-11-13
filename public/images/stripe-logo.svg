@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420">
+  <rect width="1400" height="420" fill="#f4efe6"/>
+  <text x="52" y="315" fill="#202326" font-family="Georgia, 'Times New Roman', serif" font-size="280" font-weight="400">9</text>
+  <g transform="translate(250 120) scale(2.75)">
+    <path d="M8 54C13 35 16 17 38 4c4 24-4 43-30 50Z" fill="#b76e43"/>
+    <path d="M6 62c7-19 17-32 29-47M15 42l-1-12m8 4 11-6M22 27l1-11" fill="none" stroke="#f4efe6" stroke-width="1.35" stroke-linecap="round"/>
+  </g>
+  <text x="430" y="272" fill="#202326" font-family="Georgia, 'Times New Roman', serif" font-size="112" letter-spacing="3">NINTH <tspan fill="#b76e43">&amp;</tspan> OAK</text>
+</svg>
