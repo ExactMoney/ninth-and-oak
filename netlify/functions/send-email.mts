@@ -43,7 +43,7 @@ export default async (request: Request) => {
     const { data: member } = await supabase.from('crm_members').select('user_id').eq('user_id', auth.user.id).maybeSingle();
     if (!member) return json({ error: 'CRM access required.' }, 403);
 
-    const body = await request.json() as { contactId?: string; to?: string; subject?: string; text?: string };
+    const body = await request.json() as { contactId?: string; threadId?: string; to?: string; subject?: string; text?: string };
     const to = String(body.to || '').trim().toLowerCase();
     const subject = String(body.subject || '').trim();
     const text = String(body.text || '').trim();
@@ -57,11 +57,22 @@ export default async (request: Request) => {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const result = await resend.emails.send({
       from, to: [to], subject, text, html: brandedEmail(text),
-      replyTo: process.env.CRM_REPLY_TO || 'Jason@NinthandOak.com',
+      // Replies return through Resend's verified inbound subdomain so they are
+      // captured in the CRM. The public root-domain address remains in the signature.
+      replyTo: process.env.CRM_REPLY_TO || 'jason@mail.ninthandoak.com',
     });
     if (result.error || !result.data) return json({ error: result.error?.message || 'Message could not be sent.' }, 502);
 
-    let { data: thread } = await supabase.from('email_threads').select('id').eq('contact_id', contact.id).eq('subject', subject).maybeSingle();
+    let thread: { id: string } | null = null;
+    if (body.threadId) {
+      const existing = await supabase.from('email_threads').select('id').eq('id', body.threadId).eq('contact_id', contact.id).maybeSingle();
+      thread = existing.data;
+    }
+    if (!thread) {
+      const normalizedSubject = subject.replace(/^(re:|fwd:)\s*/i, '');
+      const existing = await supabase.from('email_threads').select('id').eq('contact_id', contact.id).ilike('subject', normalizedSubject).order('last_message_at', { ascending: false }).limit(1).maybeSingle();
+      thread = existing.data;
+    }
     if (!thread) {
       const created = await supabase.from('email_threads').insert({ contact_id: contact.id, subject, last_message_at: new Date().toISOString() }).select('id').single();
       if (created.error) throw created.error;

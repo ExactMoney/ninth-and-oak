@@ -28,7 +28,7 @@ export default async (request: Request) => {
       if (received.error || !received.data) throw new Error(received.error?.message || 'Inbound message could not be retrieved.');
       const { error } = await supabase.rpc('record_inbound_email', {
         p_secret: integrationSecret(), p_provider_message_id: received.data.id,
-        p_from_address: received.data.from, p_to_addresses: received.data.to,
+        p_from: received.data.from, p_to: received.data.to,
         p_subject: received.data.subject || '(No subject)', p_text_body: received.data.text || '',
         p_received_at: received.data.created_at,
       });
@@ -36,7 +36,7 @@ export default async (request: Request) => {
     } else if (tracked.has(event.type) && 'email_id' in event.data) {
       const { error } = await supabase.rpc('update_email_delivery', {
         p_secret: integrationSecret(), p_provider_message_id: event.data.email_id,
-        p_delivery_status: event.type.replace('email.', ''),
+        p_status: event.type.replace('email.', ''),
       });
       if (error) throw error;
     }
