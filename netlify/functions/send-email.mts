@@ -53,13 +53,13 @@ export default async (request: Request) => {
     const { data: contact } = await supabase.from('contacts').select('id,email').eq('id', body.contactId).maybeSingle();
     if (!contact) return json({ error: 'Contact not found.' }, 404);
 
-    const from = process.env.CRM_FROM_EMAIL || 'Ninth & Oak <hello@mail.ninthandoak.com>';
+    const from = process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>';
     const resend = new Resend(process.env.RESEND_API_KEY);
     const result = await resend.emails.send({
       from, to: [to], subject, text, html: brandedEmail(text),
       // Replies return through Resend's verified inbound subdomain so they are
       // captured in the CRM. The public root-domain address remains in the signature.
-      replyTo: process.env.CRM_REPLY_TO || 'jason@mail.ninthandoak.com',
+      replyTo: process.env.CRM_REPLY_TO || 'Jason@ninthandoak.com',
     });
     if (result.error || !result.data) return json({ error: result.error?.message || 'Message could not be sent.' }, 502);
 

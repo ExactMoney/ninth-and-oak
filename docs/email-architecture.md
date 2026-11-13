@@ -9,7 +9,7 @@ Use two separate email lanes so the human mailbox and CRM automation do not comp
    - Zoho supplies the exact MX, SPF, DKIM, and verification records for the account's data center.
    - Netlify remains the DNS host; email hosting does not move the website.
 
-2. **Resend on `mail.ninthandoak.com`**
+2. **Resend on `ninthandoak.com`**
    - CRM outbound messages and delivery events.
    - Inbound replies arrive through a Resend webhook and are written to `email_threads` and `email_messages` in Supabase.
    - The subdomain isolates automated delivery reputation and avoids conflicting with Zoho's root-domain MX records.
@@ -36,5 +36,5 @@ Do not copy generic DNS values into production. Create the Zoho and Resend accou
 
 Outbound: CRM composer → Netlify Function → Resend → recipient → delivery event webhook → Supabase.
 
-Inbound: recipient reply → `mail.ninthandoak.com` → Resend inbound webhook → signature verification → Supabase thread/contact match.
+Inbound: recipient reply → `ninthandoak.com` → Resend inbound webhook → signature verification → Supabase thread/contact match.
 

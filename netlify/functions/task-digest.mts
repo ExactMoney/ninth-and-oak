@@ -15,7 +15,7 @@ export default async (request: Request) => {
     const lines = tasks.map((task) => `• ${task.title}${task.contact_name ? ` — ${task.contact_name}` : ''}${task.due_at ? ` (due ${new Date(task.due_at).toLocaleDateString('en-US')})` : ''}`);
     const resend = new Resend(process.env.RESEND_API_KEY);
     const result = await resend.emails.send({
-      from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <hello@mail.ninthandoak.com>',
+      from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>',
       to: [process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'],
       subject: `CRM task digest: ${tasks.length} open task${tasks.length === 1 ? '' : 's'}`,
       text: `You have ${tasks.length} open CRM task${tasks.length === 1 ? '' : 's'}:\n\n${lines.join('\n')}\n\nOpen CRM: https://ninthandoak.com/admin`,

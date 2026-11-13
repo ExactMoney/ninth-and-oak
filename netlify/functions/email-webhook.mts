@@ -38,7 +38,7 @@ export default async (request: Request) => {
       const subject = received.data.subject || '(No subject)';
       const preview = (received.data.text || '').slice(0, 700);
       const alert = await resend.emails.send({
-        from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <hello@mail.ninthandoak.com>',
+        from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>',
         to: [process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'],
         subject: `New CRM reply: ${subject}`,
         text: `New customer reply from ${from}\n\nSubject: ${subject}\n\n${preview}\n\nOpen CRM: https://ninthandoak.com/admin`,
