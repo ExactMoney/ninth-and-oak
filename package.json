@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.23.4"
+  },
   "scripts": {
-    "dev": "node ./node_modules/astro/astro.js dev",
-    "build": "node ./node_modules/astro/astro.js check && node ./node_modules/astro/astro.js build",
-    "preview": "node ./node_modules/astro/astro.js preview"
+    "dev": "node ./node_modules/astro/bin/astro.mjs dev",
+    "build": "node ./node_modules/astro/bin/astro.mjs check && node ./node_modules/astro/bin/astro.mjs build",
+    "preview": "node ./node_modules/astro/bin/astro.mjs preview"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/sitemap": "^3.6.0",
-    "astro": "^5.16.3",
-    "typescript": "^5.9.3"
+    "@astrojs/check": "0.9.12",
+    "@astrojs/sitemap": "3.7.4",
+    "@supabase/supabase-js": "2.119.0",
+    "astro": "7.4.11",
+    "typescript": "5.9.3"
   }
 }
