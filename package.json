@@ -18,6 +18,7 @@
     "@supabase/supabase-js": "2.119.0",
     "astro": "7.4.11",
     "resend": "6.38.0",
+    "stripe": "18.5.0",
     "typescript": "5.9.3"
   }
 }
