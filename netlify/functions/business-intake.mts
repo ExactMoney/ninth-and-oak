@@ -11,6 +11,25 @@ function richText(value: string) {
   return { markdown: value };
 }
 
+const escapeHtml = (value: string) => value.replace(/[&<>\"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char));
+
+function brandedEmail(title: string, body: string, buttonLabel?: string, buttonHref?: string) {
+  const button = buttonLabel && buttonHref
+    ? `<p style="margin:28px 0 0"><a href="${escapeHtml(buttonHref)}" style="display:inline-block;background:#b76e43;color:#fffdf8;padding:13px 20px;text-decoration:none;font:600 12px Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase">${escapeHtml(buttonLabel)} →</a></p>`
+    : '';
+  return `<!doctype html><html><body style="margin:0;background:#f4efe6;color:#202326;font-family:Arial,sans-serif"><table width="100%" cellspacing="0" cellpadding="0" style="padding:28px 12px;background:#f4efe6"><tr><td align="center"><table width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#fffdf8;border:1px solid #e4ddd2"><tr><td style="padding:22px 30px;border-top:4px solid #b76e43"><img src="https://ninthandoak.com/images/ninth-and-oak-logo-transparent.png" width="230" alt="Ninth &amp; Oak" style="display:block;max-width:100%;height:auto"></td></tr><tr><td style="padding:30px"><h1 style="margin:0 0 18px;font:400 30px Georgia,serif;color:#202326">${escapeHtml(title)}</h1><div style="font-size:16px;line-height:1.7;color:#303336">${body}</div>${button}</td></tr><tr><td style="padding:18px 30px;background:#202326;color:#f4efe6;font:13px Georgia,serif">Rooted in Experience. <span style="color:#c98257">Built for What’s Next.</span><br><span style="font:12px Arial,sans-serif;color:#c9c3bb">Ninth &amp; Oak · 3030 Starkey Boulevard, Suite 953 · New Port Richey, FL 34655</span></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function sendBrandedEmail(to: string[], subject: string, html: string, text: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error('RESEND_API_KEY is not configured');
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ from: process.env.CRM_FROM_EMAIL || 'Ninth & Oak <Hello@ninthandoak.com>', to, reply_to: process.env.CRM_REPLY_TO || 'Jason@NinthandOak.com', subject, html, text }),
+  });
+  if (!response.ok) throw new Error(`Resend request failed (${response.status})`);
+}
+
 export default async (request: Request) => {
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
 
@@ -130,6 +149,35 @@ export default async (request: Request) => {
     }
     if (note?.id && company?.id) {
       await api('/rest/noteTargets', { method: 'POST', body: JSON.stringify({ noteId: note.id, targetCompanyId: company.id }) });
+    }
+
+    // Keep follow-up visible in Twenty. This is intentionally best-effort so a mail or task outage never loses the intake.
+    try {
+      await api('/rest/tasks', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: `Review new intake — ${companyName}`,
+          bodyV2: richText(`New business profile submitted by ${firstName} ${lastName} (${email}). Review the intake note and follow up within one business day.`),
+          status: 'TODO',
+          dueAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          personId: person?.id,
+          companyId: company?.id,
+        }),
+      });
+    } catch (taskError) {
+      console.error('Business intake task creation failed', taskError);
+    }
+
+    const contactName = `${firstName} ${lastName}`.trim();
+    const thankYouText = `Hi ${firstName},\n\nThank you for sharing a little about ${companyName}. We received your information and will review it before following up with thoughtful next steps.\n\nNinth & Oak\nRooted in Experience. Built for What’s Next.`;
+    const internalText = `New business profile submitted.\n\nContact: ${contactName}\nEmail: ${email}\nCompany: ${companyName}\nPhone: ${phone || 'Not provided'}\n\nOpen the CRM to review the new company, person, note, and follow-up task.`;
+    try {
+      await Promise.all([
+        sendBrandedEmail([email], 'Thank you for reaching out to Ninth & Oak', brandedEmail(`Thank you, ${escapeHtml(firstName)}.`, `<p>We received your business profile for <strong>${escapeHtml(companyName)}</strong>.</p><p>We’ll review what you shared and follow up with thoughtful next steps.</p><p>We look forward to learning more.</p>`), undefined, undefined), thankYouText),
+        sendBrandedEmail([process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'], `New business profile: ${companyName}`, brandedEmail('New business profile received', `<p><strong>${escapeHtml(contactName)}</strong> submitted a profile for <strong>${escapeHtml(companyName)}</strong>.</p><p>${escapeHtml(email)}${phone ? ` · ${escapeHtml(phone)}` : ''}</p>`, 'Open CRM', 'https://crm.ninthandoak.com/welcome'), internalText),
+      ]);
+    } catch (mailError) {
+      console.error('Business intake email notification failed', mailError);
     }
 
     return json({ ok: true });
