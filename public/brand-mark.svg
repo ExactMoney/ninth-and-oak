@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Ninth &amp; Oak mark</title>
+  <desc id="desc">A charcoal nine with a warm copper leaf</desc>
+  <rect width="256" height="256" rx="38" fill="#f4f1eb"/>
+  <path d="M126 38c-45-1-77 27-77 70 0 42 28 67 66 67 13 0 25-3 35-9-13 31-39 53-76 73l8 10c56-26 94-66 94-137 0-46-17-73-50-74Zm-8 119c-23 0-36-18-36-48 0-30 16-51 42-51 21 0 33 17 33 48 0 34-14 51-39 51Z" fill="#202326"/>
+  <path d="M145 190c4-35 18-65 54-91 5 42-13 72-54 91Z" fill="#b76e43"/>
+  <path d="M143 215c13-36 31-68 54-95M159 185l-4-20m20 8 18-11m-35-4 2-19" fill="none" stroke="#f4f1eb" stroke-width="6" stroke-linecap="round"/>
+</svg>
