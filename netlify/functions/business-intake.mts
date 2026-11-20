@@ -173,7 +173,7 @@ export default async (request: Request) => {
     const internalText = `New business profile submitted.\n\nContact: ${contactName}\nEmail: ${email}\nCompany: ${companyName}\nPhone: ${phone || 'Not provided'}\n\nOpen the CRM to review the new company, person, note, and follow-up task.`;
     try {
       await Promise.all([
-        sendBrandedEmail([email], 'Thank you for reaching out to Ninth & Oak', brandedEmail(`Thank you, ${escapeHtml(firstName)}.`, `<p>We received your business profile for <strong>${escapeHtml(companyName)}</strong>.</p><p>We’ll review what you shared and follow up with thoughtful next steps.</p><p>We look forward to learning more.</p>`), undefined, undefined), thankYouText),
+        sendBrandedEmail([email], 'Thank you for reaching out to Ninth & Oak', brandedEmail(`Thank you, ${escapeHtml(firstName)}.`, `<p>We received your business profile for <strong>${escapeHtml(companyName)}</strong>.</p><p>We’ll review what you shared and follow up with thoughtful next steps.</p><p>We look forward to learning more.</p>`), thankYouText),
         sendBrandedEmail([process.env.CRM_NOTIFICATION_EMAIL || 'Jason@NinthandOak.com'], `New business profile: ${companyName}`, brandedEmail('New business profile received', `<p><strong>${escapeHtml(contactName)}</strong> submitted a profile for <strong>${escapeHtml(companyName)}</strong>.</p><p>${escapeHtml(email)}${phone ? ` · ${escapeHtml(phone)}` : ''}</p>`, 'Open CRM', 'https://crm.ninthandoak.com/welcome'), internalText),
       ]);
     } catch (mailError) {
