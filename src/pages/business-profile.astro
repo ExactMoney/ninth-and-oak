@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Tell Us About Your Business | Ninth & Oak" description="Share a few details about your business so Ninth & Oak can prepare for a useful conversation.">
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Ninth and Oak home">
+      <span class="nine" aria-hidden="true">9</span><svg viewBox="0 0 46 64" aria-hidden="true"><path d="M8 54C13 35 16 17 38 4c4 24-4 43-30 50Z"/><path class="vein" d="M6 62c7-19 17-32 29-47M15 42l-1-12m8 4 11-6M22 27l1-11"/></svg><i></i><span class="name">NINTH <b>&amp;</b> OAK</span>
+    </a>
+    <a class="home-link" href="/">Return to website</a>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">A brief business introduction</p>
+      <h1>Tell us a little about <em>your business.</em></h1>
+      <p>These few details help us understand where you are today and make our first conversation more useful. Most people finish in about four minutes.</p>
+      <div class="trust"><span>Private and secure</span><span>No sales pressure</span><span>Clear next steps</span></div>
+    </section>
+
+    <section class="form-wrap">
+      <form id="business-intake" novalidate>
+        <div class="section-head"><span>01</span><div><h2>About you</h2><p>Who should we speak with?</p></div></div>
+        <div class="fields two">
+          <label>First name <b>*</b><input name="firstName" autocomplete="given-name" required /></label>
+          <label>Last name <b>*</b><input name="lastName" autocomplete="family-name" required /></label>
+          <label>Email address <b>*</b><input name="email" type="email" autocomplete="email" required /></label>
+          <label>Phone number<input name="phone" type="tel" autocomplete="tel" /></label>
+          <label class="wide">Your role or title<input name="jobTitle" autocomplete="organization-title" /></label>
+        </div>
+
+        <div class="section-head"><span>02</span><div><h2>About the business</h2><p>The essentials we need for your company record.</p></div></div>
+        <div class="fields two">
+          <label>Business name <b>*</b><input name="companyName" autocomplete="organization" required /></label>
+          <label>Website<input name="companyWebsite" type="url" placeholder="yourbusiness.com" /></label>
+          <label>City<input name="city" autocomplete="address-level2" /></label>
+          <label>State<input name="state" autocomplete="address-level1" /></label>
+          <label>ZIP code<input name="postcode" autocomplete="postal-code" /></label>
+          <label>Team size<select name="teamSize"><option value="">Select one</option><option>Just me</option><option>2–5 people</option><option>6–15 people</option><option>16–50 people</option><option>More than 50</option></select></label>
+          <label class="wide">What does your business do? <b>*</b><textarea name="businessDescription" rows="3" required placeholder="A short description of what you offer and who you serve"></textarea></label>
+        </div>
+
+        <div class="section-head"><span>03</span><div><h2>What would you like to improve?</h2><p>A simple starting point for our conversation.</p></div></div>
+        <div class="fields">
+          <label>What is the main result you want over the next 6–12 months? <b>*</b><textarea name="mainGoal" rows="3" required placeholder="For example: bring in more customers, save time, or improve the website"></textarea></label>
+          <label>What is the biggest challenge standing in the way?<textarea name="biggestChallenge" rows="3"></textarea></label>
+          <fieldset><legend>Where could you use help?</legend><div class="checks"><label><input type="checkbox" name="interests" value="Business strategy" /> Business strategy</label><label><input type="checkbox" name="interests" value="Getting more customers" /> Getting more customers</label><label><input type="checkbox" name="interests" value="Website improvement" /> Website improvement</label><label><input type="checkbox" name="interests" value="Smoother operations" /> Smoother operations</label><label><input type="checkbox" name="interests" value="Follow-up and customer care" /> Follow-up and customer care</label><label><input type="checkbox" name="interests" value="Not sure yet" /> Not sure yet</label></div></fieldset>
+          <label>How would you prefer we contact you?<select name="preferredContact"><option>Email</option><option>Phone call</option><option>Text message</option></select></label>
+          <label class="trap" aria-hidden="true">Website<input name="websiteTrap" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <label class="consent"><input type="checkbox" required /> <span>I agree that Ninth & Oak may contact me about this request. <b>*</b></span></label>
+        <button type="submit">Share my business details <span>↗</span></button>
+        <p class="status" role="status" aria-live="polite"></p>
+        <p class="privacy">Your information is used only to understand your needs and follow up with you. We do not sell personal information.</p>
+      </form>
+      <div class="success" hidden>
+        <p class="eyebrow">Details received</p><h2>Thank you. We’re ready for a better conversation.</h2><p>Your business profile has been saved. Someone from Ninth & Oak will follow up using your preferred contact method.</p><a href="/">Return to Ninth & Oak</a>
+      </div>
+    </section>
+  </main>
+
+  <footer><p>Ninth & Oak</p><div>3030 Starkey Boulevard, Suite 953<br />New Port Richey, Florida 34655</div><div><a href="tel:+17274161509">727-416-1509</a><br /><a href="mailto:hello@ninthandoak.com">hello@ninthandoak.com</a></div></footer>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#business-intake');
+    const status = document.querySelector<HTMLElement>('.status');
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (button) { button.disabled = true; button.textContent = 'Saving your details…'; }
+      if (status) status.textContent = '';
+      const data = new FormData(form);
+      const payload = Object.fromEntries(data.entries()) as Record<string, unknown>;
+      payload.interests = data.getAll('interests');
+      try {
+        const response = await fetch('/api/business-intake', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Please try again.');
+        form.hidden = true;
+        const success = document.querySelector<HTMLElement>('.success');
+        if (success) { success.hidden = false; success.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      } catch (error) {
+        if (status) status.textContent = error instanceof Error ? error.message : 'Please try again.';
+        if (button) { button.disabled = false; button.innerHTML = 'Share my business details <span>↗</span>'; }
+      }
+    });
+  </script>
+</Layout>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Libre+Caslon+Display&display=swap');
+  :root{--ink:#202326;--copper:#b76e43;--cream:#f4efe6;--paper:#fbf8f2;--line:#d9d2c7;--serif:'Libre Caslon Display',Georgia,serif;--sans:'DM Sans',Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.6 var(--sans)}a{color:inherit}.site-header{height:96px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1.25rem,6vw,6rem);background:var(--paper);border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;text-decoration:none}.nine{font:5.1rem/.72 var(--serif);letter-spacing:-.12em}.brand svg{width:28px;height:43px;margin:0 .7rem 0 .15rem;fill:var(--copper)}.brand .vein{fill:none;stroke:var(--paper);stroke-width:1.35}.brand i{width:1px;height:50px;background:var(--copper);margin-right:1rem}.name{font:1.8rem/1 var(--serif);letter-spacing:.035em}.name b{font-weight:400;color:var(--copper)}.home-link{text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;text-decoration:none;border-bottom:1px solid var(--copper)}main{display:grid;grid-template-columns:minmax(320px,39%) 1fr;max-width:1500px;margin:auto}.intro{padding:clamp(4rem,8vw,8rem) clamp(1.5rem,6vw,6rem);background:var(--ink);color:white;min-height:calc(100vh - 96px);position:sticky;top:0;align-self:start}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:.68rem;font-weight:600;color:#d99a73}.intro h1{font:400 clamp(3.2rem,5vw,5.8rem)/.98 var(--serif);letter-spacing:-.04em;margin:1.5rem 0 2rem}.intro em{color:#d59469;font-style:italic}.intro>p:not(.eyebrow){color:rgba(255,255,255,.67);max-width:520px}.trust{display:flex;flex-direction:column;gap:.8rem;margin-top:3rem;color:rgba(255,255,255,.72);font-size:.78rem}.trust span:before{content:'✓';color:#d99a73;margin-right:.8rem}.form-wrap{padding:clamp(3rem,7vw,7rem) clamp(1.25rem,7vw,7rem);background:var(--paper)}form{max-width:760px;margin:auto}.section-head{display:grid;grid-template-columns:42px 1fr;gap:1rem;border-top:1px solid var(--line);padding-top:2rem;margin:0 0 2rem}.section-head:not(:first-child){margin-top:4.5rem}.section-head>span{color:var(--copper);font-size:.7rem}.section-head h2,.success h2{font:400 clamp(2rem,3vw,3.1rem)/1.1 var(--serif);margin:-.35rem 0 .3rem}.section-head p{margin:0;color:#777970;font-size:.86rem}.fields{display:grid;gap:1.5rem}.fields.two{grid-template-columns:1fr 1fr}.wide{grid-column:1/-1}label,legend{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600}label b,.consent b{color:var(--copper)}input,select,textarea{display:block;width:100%;border:0;border-bottom:1px solid #aaa69e;background:transparent;color:var(--ink);font:1rem var(--sans);padding:.7rem 0;border-radius:0;margin-top:.3rem}textarea{resize:vertical;line-height:1.55}input:focus,select:focus,textarea:focus{outline:2px solid var(--copper);outline-offset:4px}fieldset{border:0;padding:0;margin:.5rem 0}.checks{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1.5rem;margin-top:1rem}.checks label{font-size:.78rem;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:.7rem}.checks input,.consent input{width:18px;height:18px;margin:0;accent-color:var(--copper);flex:0 0 auto}.consent{display:flex;align-items:flex-start;gap:.8rem;margin:3rem 0 1.5rem;text-transform:none;letter-spacing:0;font-size:.78rem;font-weight:400}.trap{position:absolute;left:-10000px}button{border:0;background:var(--copper);color:white;padding:1rem 1.35rem;text-transform:uppercase;letter-spacing:.07em;font:600 .75rem var(--sans);cursor:pointer}button span{margin-left:1rem}button:disabled{opacity:.6;cursor:wait}.status{color:#9b4530;font-weight:600}.privacy{font-size:.7rem;color:#83847f;max-width:620px}.success{max-width:700px;margin:15vh auto}.success p:not(.eyebrow){color:#666862;max-width:570px}.success a{display:inline-block;background:var(--copper);color:white;text-decoration:none;padding:.9rem 1.2rem;margin-top:1rem}footer{max-width:1500px;margin:auto;background:#17191a;color:rgba(255,255,255,.6);border-top:3px solid var(--copper);padding:2.5rem clamp(1.25rem,6vw,6rem);display:grid;grid-template-columns:1fr auto auto;gap:3rem;font-size:.78rem}footer p{font:1.5rem var(--serif);color:white;margin:0}footer a{text-decoration:none}
+  @media(max-width:850px){.site-header{height:82px;padding-inline:1rem}.home-link{display:none}.nine{font-size:4.2rem}.brand svg{width:23px;height:35px}.brand i{height:41px}.name{font-size:1.35rem}main{display:block}.intro{position:relative;min-height:auto;padding:4rem 1.25rem}.intro h1{font-size:clamp(3.2rem,12vw,5rem)}.form-wrap{padding:3.5rem 1.25rem}.fields.two,.checks{grid-template-columns:1fr}.wide{grid-column:auto}footer{grid-template-columns:1fr;gap:1.2rem}}
+</style>
