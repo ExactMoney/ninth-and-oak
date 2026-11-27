@@ -1,7 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 import Stripe from 'stripe';
-import nodemailer from 'nodemailer';
 
 export const OFFERS = {
   price_1UgVjLLmNyj2mqXWIY14iOKs: { slug: 'playbook', name: 'AI Visibility Playbook', amount: 2700, files: ['playbook'] },
@@ -119,14 +118,9 @@ async function sendAccessEmail(session: Stripe.Checkout.Session, offer: Offer) {
     text: `Thanks for your purchase. Open your materials: ${accessUrl}\n\nStart with one service and two AI search experiences, and save a baseline before making edits. If you need help getting into your files, reply to this email.`,
     html: `<p>Thanks for your purchase.</p><p><a href="${accessUrl}">Open my purchase</a></p><p>Start with one service and two AI search experiences, and save a baseline before making edits. If you need help getting into your files, reply to this email.</p>`,
   };
-  if (key) {
-    const response = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify(message) });
-    if (!response.ok) throw new Error(`Resend failed (${response.status})`);
-    return;
-  }
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USERNAME || !process.env.SMTP_PASSWORD) throw new Error('No delivery channel is configured');
-  const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 465), secure: Number(process.env.SMTP_PORT || 465) === 465, auth: { user: process.env.SMTP_USERNAME, pass: process.env.SMTP_PASSWORD } });
-  await transporter.sendMail({ from: message.from, to: email, replyTo: message.reply_to, subject: message.subject, text: message.text, html: message.html });
+  if (!key) throw new Error('RESEND_API_KEY is not configured');
+  const response = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify(message) });
+  if (!response.ok) throw new Error(`Resend failed (${response.status})`);
 }
 
 export async function fulfillOrder(session: Stripe.Checkout.Session, offer: Offer, eventId?: string) {

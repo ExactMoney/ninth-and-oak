@@ -17,12 +17,10 @@
     "@astrojs/sitemap": "3.7.4",
     "@netlify/blobs": "^10.7.1",
     "astro": "7.4.11",
-    "nodemailer": "^7.0.10",
     "stripe": "^20.0.0",
     "typescript": "5.9.3"
   },
   "devDependencies": {
-    "@types/nodemailer": "^7.0.4",
     "tsx": "4.20.6"
   }
 }
